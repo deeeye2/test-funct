@@ -10,9 +10,8 @@
     <div class="container">
         <h1>Kubernetes Manifest Generator</h1>
         <form id="manifestForm" class="form">
-            <label for="manifestType">Select Manifest Type:</label>
-            <select id="manifestType" name="manifestType" onchange="updateForm()">
-                <option value="">Select...</option>
+            <label for="manifestType">Select Manifest Types:</label>
+            <select id="manifestType" name="manifestType" multiple onchange="updateForm()">
                 <option value="Deployment">Deployment</option>
                 <option value="Service">Service</option>
                 <option value="ConfigMap">ConfigMap</option>
@@ -40,12 +39,6 @@
             <button class="btn" onclick="cancelForm()">Cancel</button>
         </div>
     </div>
-    
-    <script src="script.js"></script>
-</body>
-</html>
-
-
     
     <script src="script.js"></script>
 </body>

@@ -13,8 +13,10 @@ body {
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     padding: 20px;
-    width: 500px; /* Increased width */
+    width: 500px;
     text-align: center;
+    overflow-y: auto; /* Added for better scrolling */
+    max-height: 90vh; /* Limit height to viewport */
 }
 
 h1 {
@@ -38,7 +40,7 @@ label, select, input {
 }
 
 select[multiple] {
-    height: auto; /* Allow multiple select to be taller */
+    height: auto;
 }
 
 .btn {
@@ -66,4 +68,5 @@ select[multiple] {
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
+
 

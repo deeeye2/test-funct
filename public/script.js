@@ -304,3 +304,4 @@ function cancelForm() {
     document.getElementById("formFields").innerHTML = "";
     document.getElementById("preview").classList.add("hidden");
 }
+

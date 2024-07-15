@@ -1,0 +1,17 @@
+{
+  "name": "k8s-manifest-generator",
+  "version": "1.0.0",
+  "description": "A web application for generating Kubernetes manifest files.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "js-yaml": "^4.1.0"
+  }
+}

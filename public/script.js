@@ -24,7 +24,7 @@ function updateForm() {
         fields[manifestType].forEach(field => {
             const fieldHtml = `
                 <label for="${field.name}">${field.label}${field.required ? '*' : ''}:</label>
-                <input type="${field.required ? 'text' : 'text'}" id="${field.name}" name="${field.name}" ${field.required ? 'required' : ''}>
+                <input type="text" id="${field.name}" name="${field.name}" ${field.required ? 'required' : ''}>
                 <br>
             `;
             formFieldsDiv.innerHTML += fieldHtml;
@@ -66,3 +66,68 @@ function showPreview() {
                             name: manifestData.name,
                             image: manifestData.image
                         }]
+                    }
+                }
+            }
+        };
+        if (manifestData.volume) {
+            manifest.spec.template.spec.volumes = [{
+                name: manifestData.volume
+            }];
+        }
+    } else if (manifestType === 'Service') {
+        manifest = {
+            apiVersion: 'v1',
+            kind: 'Service',
+            metadata: {
+                name: manifestData.name
+            },
+            spec: {
+                type: manifestData.type,
+                ports: [{
+                    port: parseInt(manifestData.port)
+                }],
+                selector: {
+                    app: manifestData.name
+                }
+            }
+        };
+    } else if (manifestType === 'ConfigMap') {
+        manifest = {
+            apiVersion: 'v1',
+            kind: 'ConfigMap',
+            metadata: {
+                name: manifestData.name
+            },
+            data: {
+                [manifestData.name]: manifestData.data
+            }
+        };
+    }
+
+    previewContent.textContent = JSON.stringify(manifest, null, 2);
+    document.getElementById("preview").classList.remove("hidden");
+}
+
+function generateManifest() {
+    const previewContent = document.getElementById("previewContent").textContent;
+    const blob = new Blob([previewContent], { type: 'application/yaml' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = 'manifest.yaml';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+
+function editForm() {
+    document.getElementById("preview").classList.add("hidden");
+}
+
+function cancelForm() {
+    document.getElementById("manifestForm").reset();
+    document.getElementById("formFields").innerHTML = "";
+    document.getElementById("preview").classList.add("hidden");
+}

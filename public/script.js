@@ -13,7 +13,52 @@ const fields = {
     ConfigMap: [
         { name: "name", label: "Name", required: true },
         { name: "data", label: "Data", required: true },
-    ]
+    ],
+    Secret: [
+        { name: "name", label: "Name", required: true },
+        { name: "data", label: "Data", required: true },
+    ],
+    PersistentVolume: [
+        { name: "name", label: "Name", required: true },
+        { name: "capacity", label: "Capacity", required: true },
+        { name: "accessModes", label: "Access Modes", required: true },
+        { name: "storageClass", label: "Storage Class", required: true },
+    ],
+    PersistentVolumeClaim: [
+        { name: "name", label: "Name", required: true },
+        { name: "storageClass", label: "Storage Class", required: true },
+        { name: "accessModes", label: "Access Modes", required: true },
+        { name: "resources", label: "Resources", required: true },
+    ],
+    Ingress: [
+        { name: "name", label: "Name", required: true },
+        { name: "host", label: "Host", required: true },
+        { name: "serviceName", label: "Service Name", required: true },
+        { name: "servicePort", label: "Service Port", required: true },
+    ],
+    Role: [
+        { name: "name", label: "Name", required: true },
+        { name: "rules", label: "Rules", required: true },
+    ],
+    RoleBinding: [
+        { name: "name", label: "Name", required: true },
+        { name: "roleName", label: "Role Name", required: true },
+        { name: "subjects", label: "Subjects", required: true },
+    ],
+    ClusterRole: [
+        { name: "name", label: "Name", required: true },
+        { name: "rules", label: "Rules", required: true },
+    ],
+    ClusterRoleBinding: [
+        { name: "name", label: "Name", required: true },
+        { name: "roleName", label: "Role Name", required: true },
+        { name: "subjects", label: "Subjects", required: true },
+    ],
+    NetworkPolicy: [
+        { name: "name", label: "Name", required: true },
+        { name: "podSelector", label: "Pod Selector", required: true },
+        { name: "policyTypes", label: "Policy Types", required: true },
+    ],
 };
 
 function updateForm() {
@@ -101,6 +146,134 @@ function showPreview() {
             },
             data: {
                 [manifestData.name]: manifestData.data
+            }
+        };
+    } else if (manifestType === 'Secret') {
+        manifest = {
+            apiVersion: 'v1',
+            kind: 'Secret',
+            metadata: {
+                name: manifestData.name
+            },
+            data: {
+                [manifestData.name]: manifestData.data
+            }
+        };
+    } else if (manifestType === 'PersistentVolume') {
+        manifest = {
+            apiVersion: 'v1',
+            kind: 'PersistentVolume',
+            metadata: {
+                name: manifestData.name
+            },
+            spec: {
+                capacity: {
+                    storage: manifestData.capacity
+                },
+                accessModes: [manifestData.accessModes],
+                storageClassName: manifestData.storageClass
+            }
+        };
+    } else if (manifestType === 'PersistentVolumeClaim') {
+        manifest = {
+            apiVersion: 'v1',
+            kind: 'PersistentVolumeClaim',
+            metadata: {
+                name: manifestData.name
+            },
+            spec: {
+                storageClassName: manifestData.storageClass,
+                accessModes: [manifestData.accessModes],
+                resources: {
+                    requests: {
+                        storage: manifestData.resources
+                    }
+                }
+            }
+        };
+    } else if (manifestType === 'Ingress') {
+        manifest = {
+            apiVersion: 'networking.k8s.io/v1',
+            kind: 'Ingress',
+            metadata: {
+                name: manifestData.name
+            },
+            spec: {
+                rules: [{
+                    host: manifestData.host,
+                    http: {
+                        paths: [{
+                            path: '/',
+                            pathType: 'Prefix',
+                            backend: {
+                                service: {
+                                    name: manifestData.serviceName,
+                                    port: {
+                                        number: parseInt(manifestData.servicePort)
+                                    }
+                                }
+                            }
+                        }]
+                    }
+                }]
+            }
+        };
+    } else if (manifestType === 'Role') {
+        manifest = {
+            apiVersion: 'rbac.authorization.k8s.io/v1',
+            kind: 'Role',
+            metadata: {
+                name: manifestData.name
+            },
+            rules: JSON.parse(manifestData.rules)
+        };
+    } else if (manifestType === 'RoleBinding') {
+        manifest = {
+            apiVersion: 'rbac.authorization.k8s.io/v1',
+            kind: 'RoleBinding',
+            metadata: {
+                name: manifestData.name
+            },
+            roleRef: {
+                apiGroup: 'rbac.authorization.k8s.io',
+                kind: 'Role',
+                name: manifestData.roleName
+            },
+            subjects: JSON.parse(manifestData.subjects)
+        };
+    } else if (manifestType === 'ClusterRole') {
+        manifest = {
+            apiVersion: 'rbac.authorization.k8s.io/v1',
+            kind: 'ClusterRole',
+            metadata: {
+                name: manifestData.name
+            },
+            rules: JSON.parse(manifestData.rules)
+        };
+    } else if (manifestType === 'ClusterRoleBinding') {
+        manifest = {
+            apiVersion: 'rbac.authorization.k8s.io/v1',
+            kind: 'ClusterRoleBinding',
+            metadata: {
+                name: manifestData.name
+            },
+            roleRef: {
+                apiGroup: 'rbac.authorization.k8s.io',
+                kind: 'ClusterRole',
+                name: manifestData.roleName
+            },
+            subjects: JSON.parse(manifestData.subjects)
+        };
+    } else if (manifestType === 'NetworkPolicy') {
+        manifest = {
+            apiVersion: 'networking.k8s.io/v1',
+            kind: 'NetworkPolicy',
+            metadata: {
+                name: manifestData.name
+            },
+            spec: {
+                podSelector: JSON.parse(manifestData.podSelector),
+                policyTypes: [manifestData.policyTypes]
             }
         };
     }

@@ -7,7 +7,7 @@ const fields = {
     ],
     Service: [
         { name: "name", label: "Name", required: true },
-        { name: "type", label: "Service Type", required: true },
+        { name: "type", label: "Service Type", required: true, options: ["ClusterIP", "NodePort", "LoadBalancer", "ExternalName"] },
         { name: "port", label: "Port", required: true },
     ],
     ConfigMap: [
@@ -20,15 +20,15 @@ const fields = {
     ],
     PersistentVolume: [
         { name: "name", label: "Name", required: true },
-        { name: "capacity", label: "Capacity", required: true },
-        { name: "accessModes", label: "Access Modes", required: true },
-        { name: "storageClass", label: "Storage Class", required: true },
+        { name: "capacity", label: "Capacity", required: true, options: ["1Gi", "5Gi", "10Gi", "50Gi", "100Gi"] },
+        { name: "accessModes", label: "Access Modes", required: true, options: ["ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany"] },
+        { name: "storageClass", label: "Storage Class", required: true, options: ["standard", "fast", "slow"] },
     ],
     PersistentVolumeClaim: [
         { name: "name", label: "Name", required: true },
-        { name: "storageClass", label: "Storage Class", required: true },
-        { name: "accessModes", label: "Access Modes", required: true },
-        { name: "resources", label: "Resources", required: true },
+        { name: "storageClass", label: "Storage Class", required: true, options: ["standard", "fast", "slow"] },
+        { name: "accessModes", label: "Access Modes", required: true, options: ["ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany"] },
+        { name: "resources", label: "Resources", required: true, options: ["1Gi", "5Gi", "10Gi", "50Gi", "100Gi"] },
     ],
     Ingress: [
         { name: "name", label: "Name", required: true },
@@ -57,7 +57,7 @@ const fields = {
     NetworkPolicy: [
         { name: "name", label: "Name", required: true },
         { name: "podSelector", label: "Pod Selector", required: true },
-        { name: "policyTypes", label: "Policy Types", required: true },
+        { name: "policyTypes", label: "Policy Types", required: true, options: ["Ingress", "Egress"] },
     ],
 };
 
@@ -81,11 +81,19 @@ function goToDetails() {
             fieldSet.appendChild(legend);
 
             fields[type].forEach(field => {
-                const fieldHtml = `
-                    <label for="${field.name}-${type}">${field.label}${field.required ? '*' : ''}:</label>
-                    <input type="text" id="${field.name}-${type}" name="${field.name}-${type}" ${field.required ? 'required' : ''}>
-                    <br>
-                `;
+                const fieldHtml = field.options
+                    ? `
+                        <label for="${field.name}-${type}">${field.label}${field.required ? '*' : ''}:</label>
+                        <select id="${field.name}-${type}" name="${field.name}-${type}" ${field.required ? 'required' : ''}>
+                            ${field.options.map(option => `<option value="${option}">${option}</option>`).join('')}
+                        </select>
+                        <br>
+                    `
+                    : `
+                        <label for="${field.name}-${type}">${field.label}${field.required ? '*' : ''}:</label>
+                        <input type="text" id="${field.name}-${type}" name="${field.name}-${type}" ${field.required ? 'required' : ''}>
+                        <br>
+                    `;
                 fieldSet.innerHTML += fieldHtml;
             });
 

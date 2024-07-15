@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('docker_hub_login') 
         DOCKER_IMAGE = "deeeye2/k8s-manifest-generator"
     }
 
@@ -16,7 +15,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    docker.build(DOCKER_IMAGE)
+                    docker.build("${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
                 }
             }
         }
@@ -24,14 +23,13 @@ pipeline {
         stage('Push') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
-                        docker.image(DOCKER_IMAGE).push("${env.BUILD_NUMBER}")
-                        docker.image(DOCKER_IMAGE).push("latest")
+                    docker.withRegistry('https://index.docker.io/v1/', 'docker_hub_login') {
+                        docker.image("${DOCKER_IMAGE}:${env.BUILD_NUMBER}").push()
+                        docker.image("${DOCKER_IMAGE}:latest").push()
                     }
                 }
             }
         }
-
     }
 
     post {

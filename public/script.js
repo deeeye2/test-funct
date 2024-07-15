@@ -1,4 +1,4 @@
-const fields = {
+const k8sFields = {
     Deployment: [
         { name: "name", label: "Name", required: true },
         { name: "image", label: "Container Image", required: true },
@@ -61,8 +61,134 @@ const fields = {
     ],
 };
 
-function goToDetails() {
-    const manifestTypeSelect = document.getElementById("manifestType");
+const dockerfileFields = {
+    node: [
+        { name: "version", label: "Node.js Version", required: true, options: ["14", "16", "18"] },
+        { name: "appDirectory", label: "Application Directory", required: true },
+        { name: "startCommand", label: "Start Command", required: true },
+    ],
+    python: [
+        { name: "version", label: "Python Version", required: true, options: ["3.8", "3.9", "3.10"] },
+        { name: "appDirectory", label: "Application Directory", required: true },
+        { name: "startCommand", label: "Start Command", required: true },
+    ],
+    golang: [
+        { name: "version", label: "Go Version", required: true, options: ["1.16", "1.17", "1.18"] },
+        { name: "appDirectory", label: "Application Directory", required: true },
+        { name: "startCommand", label: "Start Command", required: true },
+    ],
+    java: [
+        { name: "version", label: "Java Version", required: true, options: ["8", "11", "16"] },
+        { name: "appDirectory", label: "Application Directory", required: true },
+        { name: "startCommand", label: "Start Command", required: true },
+    ],
+    nginx: [
+        { name: "configFile", label: "Nginx Config File", required: true },
+        { name: "documentRoot", label: "Document Root", required: true },
+    ],
+    alpine: [
+        { name: "commands", label: "Commands to Run", required: true },
+    ]
+};
+
+function goToDockerfileDetails() {
+    const baseImage = document.getElementById("dockerfileBaseImage").value;
+
+    if (!baseImage) {
+        alert('Please select a base image.');
+        return;
+    }
+
+    const formFieldsDiv = document.getElementById("dockerfileFormFields");
+    formFieldsDiv.innerHTML = "";
+
+    if (dockerfileFields[baseImage]) {
+        dockerfileFields[baseImage].forEach(field => {
+            const fieldHtml = field.options
+                ? `
+                    <label for="${field.name}-${baseImage}">${field.label}${field.required ? '*' : ''}:</label>
+                    <select id="${field.name}-${baseImage}" name="${field.name}-${baseImage}" ${field.required ? 'required' : ''}>
+                        ${field.options.map(option => `<option value="${option}">${option}</option>`).join('')}
+                    </select>
+                    <br>
+                `
+                : `
+                    <label for="${field.name}-${baseImage}">${field.label}${field.required ? '*' : ''}:</label>
+                    <input type="text" id="${field.name}-${baseImage}" name="${field.name}-${baseImage}" ${field.required ? 'required' : ''}>
+                    <br>
+                `;
+            formFieldsDiv.innerHTML += fieldHtml;
+        });
+    }
+
+    document.getElementById("dockerfileSelectionStep").classList.add("hidden");
+    document.getElementById("dockerfileDetailsStep").classList.remove("hidden");
+}
+
+function goBackDockerfile() {
+    document.getElementById("dockerfileSelectionStep").classList.remove("hidden");
+    document.getElementById("dockerfileDetailsStep").classList.add("hidden");
+}
+
+function showDockerfilePreview() {
+    const form = document.getElementById("dockerfileForm");
+    const formData = new FormData(form);
+    const previewContent = document.getElementById("dockerfilePreviewContent");
+    const baseImage = document.getElementById("dockerfileBaseImage").value;
+
+    let dockerfile = `FROM ${baseImage}:${formData.get(`version-${baseImage}`)}\n`;
+
+    if (baseImage === "node" || baseImage === "python" || baseImage === "golang" || baseImage === "java") {
+        dockerfile += `
+WORKDIR /usr/src/app
+COPY . .
+RUN npm install
+CMD ["${formData.get(`startCommand-${baseImage}`)}"]
+        `;
+    } else if (baseImage === "nginx") {
+        dockerfile += `
+COPY ${formData.get(`configFile-${baseImage}`)} /etc/nginx/nginx.conf
+COPY ${formData.get(`documentRoot-${baseImage}`)} /usr/share/nginx/html
+        `;
+    } else if (baseImage === "alpine") {
+        dockerfile += `
+RUN ${formData.get(`commands-${baseImage}`)}
+        `;
+    }
+
+    previewContent.textContent = dockerfile.trim();
+    document.getElementById("dockerfileDetailsStep").classList.add("hidden");
+    document.getElementById("dockerfilePreviewStep").classList.remove("hidden");
+}
+
+function generateDockerfile() {
+    const previewContent = document.getElementById("dockerfilePreviewContent").textContent;
+    const blob = new Blob([previewContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = 'Dockerfile';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+
+function editDockerfileForm() {
+    document.getElementById("dockerfilePreviewStep").classList.add("hidden");
+    document.getElementById("dockerfileDetailsStep").classList.remove("hidden");
+}
+
+function cancelDockerfileForm() {
+    document.getElementById("dockerfileForm").reset();
+    document.getElementById("dockerfileFormFields").innerHTML = "";
+    document.getElementById("dockerfileSelectionStep").classList.remove("hidden");
+    document.getElementById("dockerfileDetailsStep").classList.add("hidden");
+    document.getElementById("dockerfilePreviewStep").classList.add("hidden");
+}
+
+function goToK8sDetails() {
+    const manifestTypeSelect = document.getElementById("k8sManifestType");
     const selectedOptions = Array.from(manifestTypeSelect.selectedOptions).map(option => option.value);
 
     if (selectedOptions.length === 0) {
@@ -70,17 +196,17 @@ function goToDetails() {
         return;
     }
 
-    const formFieldsDiv = document.getElementById("formFields");
+    const formFieldsDiv = document.getElementById("k8sFormFields");
     formFieldsDiv.innerHTML = "";
 
     selectedOptions.forEach(type => {
-        if (fields[type]) {
+        if (k8sFields[type]) {
             const fieldSet = document.createElement('fieldset');
             const legend = document.createElement('legend');
             legend.textContent = type;
             fieldSet.appendChild(legend);
 
-            fields[type].forEach(field => {
+            k8sFields[type].forEach(field => {
                 const fieldHtml = field.options
                     ? `
                         <label for="${field.name}-${type}">${field.label}${field.required ? '*' : ''}:</label>
@@ -101,20 +227,20 @@ function goToDetails() {
         }
     });
 
-    document.getElementById("selectionStep").classList.add("hidden");
-    document.getElementById("detailsStep").classList.remove("hidden");
+    document.getElementById("k8sSelectionStep").classList.add("hidden");
+    document.getElementById("k8sDetailsStep").classList.remove("hidden");
 }
 
-function goBack() {
-    document.getElementById("selectionStep").classList.remove("hidden");
-    document.getElementById("detailsStep").classList.add("hidden");
+function goBackK8s() {
+    document.getElementById("k8sSelectionStep").classList.remove("hidden");
+    document.getElementById("k8sDetailsStep").classList.add("hidden");
 }
 
-function showPreview() {
-    const form = document.getElementById("manifestForm");
+function showK8sPreview() {
+    const form = document.getElementById("k8sManifestForm");
     const formData = new FormData(form);
-    const previewContent = document.getElementById("previewContent");
-    const manifestTypeSelect = document.getElementById("manifestType");
+    const previewContent = document.getElementById("k8sPreviewContent");
+    const manifestTypeSelect = document.getElementById("k8sManifestType");
     const selectedOptions = Array.from(manifestTypeSelect.selectedOptions).map(option => option.value);
 
     const manifests = [];
@@ -318,12 +444,12 @@ function showPreview() {
     });
 
     previewContent.textContent = manifests.map(manifest => JSON.stringify(manifest, null, 2)).join('\n---\n');
-    document.getElementById("detailsStep").classList.add("hidden");
-    document.getElementById("previewStep").classList.remove("hidden");
+    document.getElementById("k8sDetailsStep").classList.add("hidden");
+    document.getElementById("k8sPreviewStep").classList.remove("hidden");
 }
 
-function generateManifest() {
-    const previewContent = document.getElementById("previewContent").textContent;
+function generateK8sManifest() {
+    const previewContent = document.getElementById("k8sPreviewContent").textContent;
     const blob = new Blob([previewContent], { type: 'application/yaml' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -335,17 +461,17 @@ function generateManifest() {
     window.URL.revokeObjectURL(url);
 }
 
-function editForm() {
-    document.getElementById("previewStep").classList.add("hidden");
-    document.getElementById("detailsStep").classList.remove("hidden");
+function editK8sForm() {
+    document.getElementById("k8sPreviewStep").classList.add("hidden");
+    document.getElementById("k8sDetailsStep").classList.remove("hidden");
 }
 
-function cancelForm() {
-    document.getElementById("manifestForm").reset();
-    document.getElementById("formFields").innerHTML = "";
-    document.getElementById("selectionStep").classList.remove("hidden");
-    document.getElementById("detailsStep").classList.add("hidden");
-    document.getElementById("previewStep").classList.add("hidden");
+function cancelK8sForm() {
+    document.getElementById("k8sManifestForm").reset();
+    document.getElementById("k8sFormFields").innerHTML = "";
+    document.getElementById("k8sSelectionStep").classList.remove("hidden");
+    document.getElementById("k8sDetailsStep").classList.add("hidden");
+    document.getElementById("k8sPreviewStep").classList.add("hidden");
 }
 
 

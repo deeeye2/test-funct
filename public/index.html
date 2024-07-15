@@ -103,10 +103,41 @@
             <button class="btn" onclick="editAnsibleForm()">Edit</button>
             <button class="btn" onclick="cancelAnsibleForm()">Cancel</button>
         </div>
+        
+        <h1>Terraform Configuration Generator</h1>
+        <div id="terraformSelectionStep">
+            <label for="terraformResourceType">Select Resource Types:</label>
+            <select id="terraformResourceType" name="terraformResourceType" multiple size="10">
+                <option value="aws_instance">AWS Instance</option>
+                <option value="aws_s3_bucket">AWS S3 Bucket</option>
+                <option value="aws_security_group">AWS Security Group</option>
+                <option value="google_compute_instance">Google Compute Instance</option>
+                <option value="google_storage_bucket">Google Storage Bucket</option>
+                <option value="azure_virtual_machine">Azure Virtual Machine</option>
+            </select>
+            <button type="button" class="btn" onclick="goToTerraformDetails()">Next</button>
+        </div>
+
+        <div id="terraformDetailsStep" class="hidden">
+            <form id="terraformForm" class="form">
+                <div id="terraformFormFields" class="form-fields"></div>
+                <button type="button" class="btn" onclick="showTerraformPreview()">Preview</button>
+            </form>
+            <button type="button" class="btn" onclick="goBackTerraform()">Back</button>
+        </div>
+
+        <div id="terraformPreviewStep" class="preview hidden">
+            <h2>Preview</h2>
+            <pre id="terraformPreviewContent"></pre>
+            <button class="btn" onclick="generateTerraformConfig()">Download</button>
+            <button class="btn" onclick="editTerraformForm()">Edit</button>
+            <button class="btn" onclick="cancelTerraformForm()">Cancel</button>
+        </div>
     </div>
     
     <script src="script.js"></script>
 </body>
 </html>
+
 
 

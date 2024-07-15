@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K8s Manifest Generator</title>
+    <title>Manifest Generators</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <h1>Kubernetes Manifest Generator</h1>
-        <div id="selectionStep">
-            <label for="manifestType">Select Manifest Types:</label>
-            <select id="manifestType" name="manifestType" multiple size="10">
+        <div id="k8sSelectionStep">
+            <label for="k8sManifestType">Select Kubernetes Manifest Types:</label>
+            <select id="k8sManifestType" name="k8sManifestType" multiple size="10">
                 <option value="Deployment">Deployment</option>
                 <option value="Service">Service</option>
                 <option value="ConfigMap">ConfigMap</option>
@@ -25,27 +25,58 @@
                 <option value="ClusterRoleBinding">ClusterRoleBinding</option>
                 <option value="NetworkPolicy">NetworkPolicy</option>
             </select>
-            <button type="button" class="btn" onclick="goToDetails()">Next</button>
+            <button type="button" class="btn" onclick="goToK8sDetails()">Next</button>
         </div>
 
-        <div id="detailsStep" class="hidden">
-            <form id="manifestForm" class="form">
-                <div id="formFields" class="form-fields"></div>
-                <button type="button" class="btn" onclick="showPreview()">Preview</button>
+        <div id="k8sDetailsStep" class="hidden">
+            <form id="k8sManifestForm" class="form">
+                <div id="k8sFormFields" class="form-fields"></div>
+                <button type="button" class="btn" onclick="showK8sPreview()">Preview</button>
             </form>
-            <button type="button" class="btn" onclick="goBack()">Back</button>
+            <button type="button" class="btn" onclick="goBackK8s()">Back</button>
         </div>
 
-        <div id="previewStep" class="preview hidden">
+        <div id="k8sPreviewStep" class="preview hidden">
             <h2>Preview</h2>
-            <pre id="previewContent"></pre>
-            <button class="btn" onclick="generateManifest()">Download</button>
-            <button class="btn" onclick="editForm()">Edit</button>
-            <button class="btn" onclick="cancelForm()">Cancel</button>
+            <pre id="k8sPreviewContent"></pre>
+            <button class="btn" onclick="generateK8sManifest()">Download</button>
+            <button class="btn" onclick="editK8sForm()">Edit</button>
+            <button class="btn" onclick="cancelK8sForm()">Cancel</button>
+        </div>
+        
+        <h1>Dockerfile Generator</h1>
+        <div id="dockerfileSelectionStep">
+            <label for="dockerfileBaseImage">Select Base Image:</label>
+            <select id="dockerfileBaseImage" name="dockerfileBaseImage">
+                <option value="node">Node.js</option>
+                <option value="python">Python</option>
+                <option value="golang">Go</option>
+                <option value="java">Java</option>
+                <option value="nginx">Nginx</option>
+                <option value="alpine">Alpine</option>
+            </select>
+            <button type="button" class="btn" onclick="goToDockerfileDetails()">Next</button>
+        </div>
+
+        <div id="dockerfileDetailsStep" class="hidden">
+            <form id="dockerfileForm" class="form">
+                <div id="dockerfileFormFields" class="form-fields"></div>
+                <button type="button" class="btn" onclick="showDockerfilePreview()">Preview</button>
+            </form>
+            <button type="button" class="btn" onclick="goBackDockerfile()">Back</button>
+        </div>
+
+        <div id="dockerfilePreviewStep" class="preview hidden">
+            <h2>Preview</h2>
+            <pre id="dockerfilePreviewContent"></pre>
+            <button class="btn" onclick="generateDockerfile()">Download</button>
+            <button class="btn" onclick="editDockerfileForm()">Edit</button>
+            <button class="btn" onclick="cancelDockerfileForm()">Cancel</button>
         </div>
     </div>
     
     <script src="script.js"></script>
 </body>
 </html>
+
 

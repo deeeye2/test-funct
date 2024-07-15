@@ -2,9 +2,8 @@ pipeline {
     agent any
 
     environment {
+        DOCKERHUB_CREDENTIALS = credentials('docker_hub_login') 
         DOCKER_IMAGE = "deeeye2/k8s-manifest-generator"
-        DOCKER_CREDENTIALS_ID = "docker-hub-login"
-        KUBECONFIG_CREDENTIALS_ID = "kubeconfig"
     }
 
     stages {
@@ -25,7 +24,7 @@ pipeline {
         stage('Push') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
                         docker.image(DOCKER_IMAGE).push("${env.BUILD_NUMBER}")
                         docker.image(DOCKER_IMAGE).push("latest")
                     }

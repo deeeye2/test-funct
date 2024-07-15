@@ -73,6 +73,36 @@
             <button class="btn" onclick="editDockerfileForm()">Edit</button>
             <button class="btn" onclick="cancelDockerfileForm()">Cancel</button>
         </div>
+        
+        <h1>Ansible Playbook Generator</h1>
+        <div id="ansibleSelectionStep">
+            <label for="ansiblePlaybookType">Select Playbook Tasks:</label>
+            <select id="ansiblePlaybookType" name="ansiblePlaybookType" multiple size="10">
+                <option value="package">Package</option>
+                <option value="service">Service</option>
+                <option value="file">File</option>
+                <option value="copy">Copy</option>
+                <option value="command">Command</option>
+                <option value="user">User</option>
+            </select>
+            <button type="button" class="btn" onclick="goToAnsibleDetails()">Next</button>
+        </div>
+
+        <div id="ansibleDetailsStep" class="hidden">
+            <form id="ansibleForm" class="form">
+                <div id="ansibleFormFields" class="form-fields"></div>
+                <button type="button" class="btn" onclick="showAnsiblePreview()">Preview</button>
+            </form>
+            <button type="button" class="btn" onclick="goBackAnsible()">Back</button>
+        </div>
+
+        <div id="ansiblePreviewStep" class="preview hidden">
+            <h2>Preview</h2>
+            <pre id="ansiblePreviewContent"></pre>
+            <button class="btn" onclick="generateAnsiblePlaybook()">Download</button>
+            <button class="btn" onclick="editAnsibleForm()">Edit</button>
+            <button class="btn" onclick="cancelAnsibleForm()">Cancel</button>
+        </div>
     </div>
     
     <script src="script.js"></script>

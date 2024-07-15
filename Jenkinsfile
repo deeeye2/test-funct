@@ -2,16 +2,15 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "your_dockerhub_username/k8s-manifest-generator"
-        DOCKER_CREDENTIALS_ID = "docker-hub-credentials"
+        DOCKER_IMAGE = "deeeye2/k8s-manifest-generator"
+        DOCKER_CREDENTIALS_ID = "docker-hub-login"
         KUBECONFIG_CREDENTIALS_ID = "kubeconfig"
-        K8S_NAMESPACE = "your-namespace"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/your-repo/k8s-manifest-generator.git'
+                git 'https://github.com/deeeye2/test-funct.git'
             }
         }
 
@@ -34,15 +33,6 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            steps {
-                withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG')]) {
-                    script {
-                        sh 'kubectl apply -f k8s-manifest.yaml'
-                    }
-                }
-            }
-        }
     }
 
     post {

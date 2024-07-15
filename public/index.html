@@ -9,9 +9,9 @@
 <body>
     <div class="container">
         <h1>Kubernetes Manifest Generator</h1>
-        <form id="manifestForm" class="form">
+        <div id="selectionStep">
             <label for="manifestType">Select Manifest Types:</label>
-            <select id="manifestType" name="manifestType" multiple onchange="updateForm()">
+            <select id="manifestType" name="manifestType" multiple size="10">
                 <option value="Deployment">Deployment</option>
                 <option value="Service">Service</option>
                 <option value="ConfigMap">ConfigMap</option>
@@ -25,16 +25,21 @@
                 <option value="ClusterRoleBinding">ClusterRoleBinding</option>
                 <option value="NetworkPolicy">NetworkPolicy</option>
             </select>
-            
-            <div id="formFields" class="form-fields"></div>
-            
-            <button type="button" class="btn" onclick="showPreview()">Preview</button>
-        </form>
+            <button type="button" class="btn" onclick="goToDetails()">Next</button>
+        </div>
 
-        <div id="preview" class="preview hidden">
+        <div id="detailsStep" class="hidden">
+            <form id="manifestForm" class="form">
+                <div id="formFields" class="form-fields"></div>
+                <button type="button" class="btn" onclick="showPreview()">Preview</button>
+            </form>
+            <button type="button" class="btn" onclick="goBack()">Back</button>
+        </div>
+
+        <div id="previewStep" class="preview hidden">
             <h2>Preview</h2>
             <pre id="previewContent"></pre>
-            <button class="btn" onclick="generateManifest()">Generate</button>
+            <button class="btn" onclick="generateManifest()">Download</button>
             <button class="btn" onclick="editForm()">Edit</button>
             <button class="btn" onclick="cancelForm()">Cancel</button>
         </div>
@@ -43,3 +48,4 @@
     <script src="script.js"></script>
 </body>
 </html>
+

@@ -37,6 +37,10 @@ label, select, input {
     margin-bottom: 10px;
 }
 
+select[multiple] {
+    height: auto; /* Allow multiple select to be taller */
+}
+
 .btn {
     background-color: #007BFF;
     border: none;

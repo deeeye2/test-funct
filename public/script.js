@@ -61,9 +61,15 @@ const fields = {
     ],
 };
 
-function updateForm() {
+function goToDetails() {
     const manifestTypeSelect = document.getElementById("manifestType");
     const selectedOptions = Array.from(manifestTypeSelect.selectedOptions).map(option => option.value);
+
+    if (selectedOptions.length === 0) {
+        alert('Please select at least one manifest type.');
+        return;
+    }
+
     const formFieldsDiv = document.getElementById("formFields");
     formFieldsDiv.innerHTML = "";
 
@@ -86,6 +92,14 @@ function updateForm() {
             formFieldsDiv.appendChild(fieldSet);
         }
     });
+
+    document.getElementById("selectionStep").classList.add("hidden");
+    document.getElementById("detailsStep").classList.remove("hidden");
+}
+
+function goBack() {
+    document.getElementById("selectionStep").classList.remove("hidden");
+    document.getElementById("detailsStep").classList.add("hidden");
 }
 
 function showPreview() {
@@ -296,7 +310,8 @@ function showPreview() {
     });
 
     previewContent.textContent = manifests.map(manifest => JSON.stringify(manifest, null, 2)).join('\n---\n');
-    document.getElementById("preview").classList.remove("hidden");
+    document.getElementById("detailsStep").classList.add("hidden");
+    document.getElementById("previewStep").classList.remove("hidden");
 }
 
 function generateManifest() {
@@ -313,12 +328,16 @@ function generateManifest() {
 }
 
 function editForm() {
-    document.getElementById("preview").classList.add("hidden");
+    document.getElementById("previewStep").classList.add("hidden");
+    document.getElementById("detailsStep").classList.remove("hidden");
 }
 
 function cancelForm() {
     document.getElementById("manifestForm").reset();
     document.getElementById("formFields").innerHTML = "";
-    document.getElementById("preview").classList.add("hidden");
+    document.getElementById("selectionStep").classList.remove("hidden");
+    document.getElementById("detailsStep").classList.add("hidden");
+    document.getElementById("previewStep").classList.add("hidden");
 }
+
 

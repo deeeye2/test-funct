@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K8s Manifest Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Kubernetes Manifest Generator</h1>
+        <form id="manifestForm" class="form">
+            <label for="manifestType">Select Manifest Type:</label>
+            <select id="manifestType" name="manifestType" onchange="updateForm()">
+                <option value="">Select...</option>
+                <option value="Deployment">Deployment</option>
+                <option value="Service">Service</option>
+                <option value="ConfigMap">ConfigMap</option>
+            </select>
+            
+            <div id="formFields" class="form-fields"></div>
+            
+            <button type="button" class="btn" onclick="showPreview()">Preview</button>
+        </form>
+
+        <div id="preview" class="preview hidden">
+            <h2>Preview</h2>
+            <pre id="previewContent"></pre>
+            <button class="btn" onclick="downloadManifest()">Download</button>
+            <button class="btn" onclick="editForm()">Edit</button>
+            <button class="btn" onclick="cancelForm()">Cancel</button>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

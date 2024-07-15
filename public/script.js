@@ -3,6 +3,157 @@ const terraformFields = {
         { name: "ami", label: "AMI", required: true },
         { name: "instance_type", label: "Instance Type", required: true, options: ["t2.micro", "t2.small", "t2.medium"] },
         { name: "key_name", label: "Key Name", required: false },
+        { name: "vpc_security_group_ids", label: "VPC Security Group IDs (comma-separated)", required: false },
+        { name: "subnet_id", label: "Subnet ID", required: false },
+        { name: "associate_public_ip_address", label: "Associate Public IP Address", required: false, options: ["true", "false"] },
+        { name: "tags", label: "Tags (JSON format)", required: false },
+        { name: "ebs_block_device", label: "EBS Block Device (JSON format)", required: false }
+    ],
+    aws_s3_bucket: [
+        { name: "bucket", label: "Bucket Name", required: true },
+        { name: "acl", label: "ACL", required: true, options: ["private", "public-read", "public-read-write", "authenticated-read"] },
+        { name: "force_destroy", label: "Force Destroy", required: false, options: ["true", "false"] }
+    ],
+    aws_security_group: [
+        { name: "name", label: "Name", required: true },
+        { name: "description", label: "Description", required: true },
+        { name: "vpc_id", label: "VPC ID", required: true },
+        { name: "ingress", label: "Ingress Rules (JSON format)", required: false },
+        { name: "egress", label: "Egress Rules (JSON format)", required: false }
+    ],
+    google_compute_instance: [
+        { name: "name", label: "Name", required: true },
+        { name: "machine_type", label: "Machine Type", required: true, options: ["f1-micro", "g1-small", "n1-standard-1"] },
+        { name: "zone", label: "Zone", required: true },
+        { name: "tags", label: "Tags (JSON format)", required: false }
+    ],
+    google_storage_bucket: [
+        { name: "name", label: "Bucket Name", required: true },
+        { name: "location", label: "Location", required: true, options: ["US", "EU", "ASIA"] },
+        { name: "storage_class", label: "Storage Class", required: false, options: ["STANDARD", "NEARLINE", "COLDLINE", "ARCHIVE"] }
+    ],
+    azure_virtual_machine: [
+        { name: "name", label: "Name", required: true },
+        { name: "resource_group_name", label: "Resource Group Name", required: true },
+        { name: "vm_size", label: "VM Size", required: true, options: ["Standard_DS1_v2", "Standard_DS2_v2", "Standard_DS3_v2"] },
+        { name: "os_disk", label: "OS Disk (JSON format)", required: true },
+        { name: "network_interface_ids", label: "Network Interface IDs (JSON format)", required: true }
+    ],
+};
+
+function goToTerraformDetails() {
+    const resourceTypeSelect = document.getElementById("terraformResourceType");
+    const selectedOptions = Array.from(resourceTypeSelect.selectedOptions).map(option => option.value);
+
+    if (selectedOptions.length === 0) {
+        alert('Please select at least one resource type.');
+        return;
+    }
+
+    const formFieldsDiv = document.getElementById("terraformFormFields");
+    formFieldsDiv.innerHTML = "";
+
+    selectedOptions.forEach(type => {
+        if (terraformFields[type]) {
+            const fieldSet = document.createElement('fieldset');
+            const legend = document.createElement('legend');
+            legend.textContent = type.replace(/_/g, ' ').toUpperCase();
+            fieldSet.appendChild(legend);
+
+            terraformFields[type].forEach(field => {
+                const fieldHtml = field.options
+                    ? `
+                        <label for="${field.name}-${type}">${field.label}${field.required ? '*' : ''}:</label>
+                        <select id="${field.name}-${type}" name="${field.name}-${type}" ${field.required ? 'required' : ''}>
+                            ${field.options.map(option => `<option value="${option}">${option}</option>`).join('')}
+                        </select>
+                        <br>
+                    `
+                    : `
+                        <label for="${field.name}-${type}">${field.label}${field.required ? '*' : ''}:</label>
+                        <input type="text" id="${field.name}-${type}" name="${field.name}-${type}" ${field.required ? 'required' : ''}>
+                        <br>
+                    `;
+                fieldSet.innerHTML += fieldHtml;
+            });
+
+            formFieldsDiv.appendChild(fieldSet);
+        }
+    });
+
+    document.getElementById("terraformSelectionStep").classList.add("hidden");
+    document.getElementById("terraformDetailsStep").classList.remove("hidden");
+}
+
+function goBackTerraform() {
+    document.getElementById("terraformSelectionStep").classList.remove("hidden");
+    document.getElementById("terraformDetailsStep").classList.add("hidden");
+}
+
+function showTerraformPreview() {
+    const form = document.getElementById("terraformForm");
+    const formData = new FormData(form);
+    const previewContent = document.getElementById("terraformPreviewContent");
+    const resourceTypeSelect = document.getElementById("terraformResourceType");
+    const selectedOptions = Array.from(resourceTypeSelect.selectedOptions).map(option => option.value);
+
+    const resources = selectedOptions.map(type => {
+        let resource = { [type]: {} };
+
+        terraformFields[type].forEach(field => {
+            resource[type][field.name] = formData.get(`${field.name}-${type}`);
+        });
+
+        return resource;
+    });
+
+    const terraformConfig = resources.map(resource => {
+        const type = Object.keys(resource)[0];
+        const config = resource[type];
+        return `
+resource "${type}" "${config.name || config.bucket || config.name}" {
+    ${Object.keys(config).map(key => `${key} = "${config[key]}"`).join('\n    ')}
+}
+        `;
+    }).join('\n');
+
+    previewContent.textContent = terraformConfig.trim();
+    document.getElementById("terraformDetailsStep").classList.add("hidden");
+    document.getElementById("terraformPreviewStep").classList.remove("hidden");
+}
+
+function generateTerraformConfig() {
+    const previewContent = document.getElementById("terraformPreviewContent").textContent;
+    const blob = new Blob([previewContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = 'main.tf';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+
+function editTerraformForm() {
+    document.getElementById("terraformPreviewStep").classList.add("hidden");
+    document.getElementById("terraformDetailsStep").classList.remove("hidden");
+}
+
+function cancelTerraformForm() {
+    document.getElementById("terraformForm").reset();
+    document.getElementById("terraformFormFields").innerHTML = "";
+    document.getElementById("terraformSelectionStep").classList.remove("hidden");
+    document.getElementById("terraformDetailsStep").classList.add("hidden");
+    document.getElementById("terraformPreviewStep").classList.add("hidden");
+}
+
+
+const terraformFields = {
+    aws_instance: [
+        { name: "ami", label: "AMI", required: true },
+        { name: "instance_type", label: "Instance Type", required: true, options: ["t2.micro", "t2.small", "t2.medium"] },
+        { name: "key_name", label: "Key Name", required: false },
     ],
     aws_s3_bucket: [
         { name: "bucket", label: "Bucket Name", required: true },
